@@ -5,11 +5,10 @@ Home Assistant (https://www.home-assistant.io/) Package - More info on Packages 
 
 This Package can be included into your configuration.yaml to connect to the KegLand RAPT API. This is a work in progress and for now, will bring one RAPT Pill and one RAPT Temperature Controller into Home Assistant as Entities. Duplicating and adjusting sensors will allow multiple to be added. Other products can also be added pretty easily. Please feel free to reach out if you need a hand with either of these and I'll try to get back to you ASAP
 
-# Disclaimer
-This is an unofficial integration of KegLand RAPT API for Home Assistant, the developer and the contributors are not, in any way, affiliated to KegLand. "RAPT" and "KegLand" are trademarks of Kegland Distribution PTY LTD
-
-# Disclaimer 2
-This is a rushed, "just get it in there" package. I know it doesn't meet best standards for keeping credentials in the Secrets File and I'm working on that separately
+# Disclaimers
+1. This is an unofficial integration of KegLand RAPT API for Home Assistant, the developer and the contributors are not, in any way, affiliated to KegLand. "RAPT" and "KegLand" are trademarks of Kegland Distribution PTY LTD
+2. This is a rushed, "just get it in there" package. I know it doesn't meet best standards for keeping credentials in the Secrets File and I'm working on that separately
+3. As mentioned above, only the RAPT Pill and RAPT Temperature Controller are integrated in a read-only mode so far. This is a work in progress
 
 # Install manually:
 1. Create entries in your secrets.yaml file with the IDs of your RAPT. If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
