@@ -31,6 +31,7 @@ I use an Ikea Zigbee Remote to set the Input_Number and Input_DateTime in the pa
 ![image](https://user-images.githubusercontent.com/86336633/158143224-6dc8636a-a855-4a4a-90e7-c9547d82d879.png)
 
   This graph uses the config-template-card and the apexcharts-card custom front-end integrations
+```
             type: custom:config-template-card
             variables:
               - states['sensor.rapt_pill_fermentation_duration'].state + "h"
@@ -76,3 +77,4 @@ I use an Ikea Zigbee Remote to set the Input_Number and Input_DateTime in the pa
                   opposite: true
                   min: 0
                   max: ~5
+```
