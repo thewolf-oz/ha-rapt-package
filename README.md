@@ -85,3 +85,6 @@ I use an Ikea Zigbee Remote to set the Input_Number and Input_DateTime in the pa
                   min: 0
                   max: ~5
 ```
+
+# Contribute
+Feel free to contribute by opening a PR, issue on this project    
