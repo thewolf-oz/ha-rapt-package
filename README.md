@@ -12,7 +12,7 @@ This is an unofficial integration of KegLand RAPT API for Home Assistant, the de
 1. Create entries in your secrets.yaml file with the IDs of your RAPT. If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
     rapt_api_hydrometer_id1: <enter Hydrometer ID here>
     rapt_api_tempcontroller_id1: <enter Temperature Controller ID here>
-2. Copy the package_rapt_sample.yaml file found in https://github.com/thewolf-oz/ha-rapt-package to your config folder/directory in Home Assistant. A different folder/directory can be used however the following instructions assume it is directly in the config folder/directory 
+2. Copy the package_rapt-sample.yaml file found in https://github.com/thewolf-oz/ha-rapt-package to your config folder/directory in Home Assistant. A different folder/directory can be used however the following instructions assume it is directly in the config folder/directory 
 3. Rename the file to package_rapt.yaml or to a file name of your liking/standard. The following instructions assume you rename the file to package_rapt.yaml
 4. Comment out the relevant sections for products you don't have
 5. Duplicate the relevant sections for products you have more than one of, incrementing the number as appropriate
