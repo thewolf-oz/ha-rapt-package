@@ -8,6 +8,9 @@ This Package can be included into your configuration.yaml to connect to the KegL
 # Disclaimer
 This is an unofficial integration of KegLand RAPT API for Home Assistant, the developer and the contributors are not, in any way, affiliated to KegLand. "RAPT" and "KegLand" are trademarks of Kegland Distribution PTY LTD
 
+# Disclaimer 2
+This is a rushed, "just get it in there" package. I know it doesn't meet best standards for keeping credentials in the Secrets File and I'm working on that separately
+
 # Install manually:
 1. Create entries in your secrets.yaml file with the IDs of your RAPT. If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
     rapt_api_hydrometer_id1: <enter Hydrometer ID here>
@@ -25,6 +28,7 @@ This is an unofficial integration of KegLand RAPT API for Home Assistant, the de
       packages:
         rapt: !include package_rapt.yaml
 10. Restart Home Assistant.
+11. Wait 10 minutes after restart for the first telemetry to appear. The first attempt will fail as the bearer is not yet ready, this is expected at this stage
 
 # Additional Configuration Outside of Package
 I use an Ikea Zigbee Remote to set the Input_Number and Input_DateTime in the package. Once Home Assistant has an update from RAPT, pressing the button will save the current Specific Gravity and Date/Time to calculate the ABV and for use elsewhere
