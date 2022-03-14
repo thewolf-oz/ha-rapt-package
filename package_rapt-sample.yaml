@@ -32,7 +32,7 @@ sensor:
   # This section is for the Bearer sensor. It is required for all RAPT products
   - platform: command_line
     command: >
-      curl --location --request POST 'https://id.rapt.io/connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=rapt-user' --data-urlencode 'grant_type=password' --data-urlencode 'username=<EnterYourEmailHere' --data-urlencode 'password=<EnterYourAPISecretHere'
+      curl --location --request POST 'https://id.rapt.io/connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=rapt-user' --data-urlencode 'grant_type=password' --data-urlencode 'username=<EnterYourEmailHere>' --data-urlencode 'password=<EnterYourAPISecretHere>'
     name: rapt_auth_bearer
     scan_interval: 3000 # 50 minutes since bearer expires after 60 minutes
     json_attributes:
