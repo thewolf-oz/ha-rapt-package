@@ -1,0 +1,195 @@
+# Package containing the full configuration required for KegLand RAPT Pill Hydrometer/Thermometer including credentials and custom sensors
+
+# This section is where the inputs are stored.
+# A Zigbee or other physical button can trigger an automation to set these values
+# The inputs in this section may need to be duplicated depending on the number of RAPT products you have
+
+# The Original Gravity is used to calculate the ABV from the RAPT Pill telemetry
+# You will need to set this once the Pill has reported it's first telemetry
+# Comment this section out if you do not have one, duplicate it as appropriate if you have more than one
+input_number:
+  rapt_pill_original_gravity:
+    name: RAPT Pill Original Gravity
+    initial: 1
+    min: 0.9
+    max: 1.2
+    step: 0.001
+    mode: box
+    unit_of_measurement: "SG"
+    icon: mdi:arrow-expand-down
+
+# The fermentation start date and time can be used to calculate the duration of your fermentation
+# This can be used to calculate the start time of graphs in any dashboard you may use
+# Comment this section out if you do not want to track this, duplicate it as appropriate if you have more than one fermentation on the go at a time
+input_datetime:
+  rapt_pill_fermentation_start:
+    name: RAPT Pill Fermentation Start
+    has_date: true
+    has_time: true
+    icon: mdi:arrow-expand-right
+
+sensor:
+  # This section is for the Bearer sensor. It is required for all RAPT products
+  - platform: command_line
+    command: >
+      curl --location --request POST 'https://id.rapt.io/connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=rapt-user' --data-urlencode 'grant_type=password' --data-urlencode 'username=<EnterYourEmailHere' --data-urlencode 'password=<EnterYourAPISecretHere'
+    name: rapt_auth_bearer
+    scan_interval: 3000 # 50 minutes since bearer expires after 60 minutes
+    json_attributes:
+      - access_token
+      - token_type
+      - scope
+      - expires_in
+    value_template: >
+      {% if value_json.token_type == "Bearer" %}
+        {{ now() }}
+      {% else %}
+        KO
+      {% endif %}
+
+  # This section is for the RAPT Pill.
+  # There is 1 REST-based sensor in this section
+  # There are 8 Template-based sensors.
+  # Comment this section out if you do not have one, duplicate it as appropriate if you have more than one
+  - platform: rest
+    name: rapt_pill_telemetry
+    scan_interval: 600 # 10 minutes
+    resource: https://api.rapt.io/api/Hydrometers/GetTelemetry
+    params:
+      hydrometerId: !secret rapt_api_hydrometer_id
+      startDate: >
+        {{ (utcnow() - timedelta(days = 14)).isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+      endDate: >
+        {{ utcnow().isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+    json_attributes_path: "$.[-1:]"
+    json_attributes:
+      - "gravity"
+      - "rssi"
+      - "battery"
+      - "temperature"
+      - "version"
+      - "createdOn"
+    value_template: "{{( value_json[-1].gravity | float / 1000 ) }}"
+    unit_of_measurement: "SG"
+
+  - platform: template
+    sensors:
+      rapt_pill_gravity:
+        friendly_name: "RAPT Pill Gravity"
+        value_template: >
+          {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
+            {{ state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float / 1000 }}
+          {% else %}
+            {{ 'Unknown' }}
+          {% endif %}
+        icon_template: mdi:microscope
+        unit_of_measurement: "SG"
+      rapt_pill_temperature:
+        friendly_name: "RAPT Pill Temperature"
+        value_template: "{{ state_attr( 'sensor.rapt_pill_telemetry', 'temperature' ) | round(2) }}"
+        unit_of_measurement: "°C"
+        icon_template: mdi:thermometer
+      rapt_pill_rssi:
+        friendly_name: "RAPT Pill Signal Strength"
+        value_template: "{{ state_attr( 'sensor.rapt_pill_telemetry', 'rssi' ) }}"
+        icon_template: mdi:wifi
+      rapt_pill_battery:
+        friendly_name: "RAPT Pill Battery"
+        value_template: "{{ state_attr( 'sensor.rapt_pill_telemetry', 'battery' ) }}"
+        unit_of_measurement: "%"
+        icon_template: '{%- if is_state("sensor.rapt_pill_battery", "unknown") %}mdi:battery-unknown{%- elif is_state_attr("sensor.rapt_pill_battery", "battery_status", "Charging") %}mdi:battery-charging{%- elif  states.sensor.rapt_pill_battery <= 5 %}mdi:battery-outline{%- elif states.sensor.rapt_pill_battery >= 95 %}mdi:battery{% else %}mdi:battery-{{(states.sensor.rapt_pill_battery|float / 10)|round*10}}{%- endif %}'
+      rapt_pill_current_abv:
+        friendly_name: "RAPT Pill Current ABV"
+        value_template: >
+          {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
+            {{ (( states( 'input_number.rapt_pill_original_gravity' ) | float - states( 'sensor.rapt_pill_gravity' ) | float ) * 131.25 ) | round( 3 ) }}
+          {% else %}
+            {{ 'Unknown' }}
+          {% endif %}
+        unit_of_measurement: "%"
+        icon_template: mdi:beer
+      rapt_pill_fermentation_start:
+        friendly_name: "RAPT Pill Fermentation Start"
+        value_template: '{{ states( "input_datetime.fermentation_start" ) }}'
+        icon_template: mdi:arrow-expand-right
+      rapt_pill_fermentation_duration:
+        friendly_name: "RAPT Pill Fermentation Duration"
+        value_template: '{{ (( utcnow().timestamp() | int - as_timestamp(states("input_datetime.fermentation_start")) | int ) / 3600 ) | int }}'
+        icon_template: mdi:arrow-expand-horizontal
+      rapt_pill_attenuation:
+        friendly_name: "RAPT Pill Fermentation Attenuation"
+        value_template: >
+          {% if is_state( 'sensor.rapt_pill_telemetry', 'Unknown' ) %}
+            {{ 'Unknown' }}
+          {% else %}
+            {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
+              {{ 100 - (( states( 'sensor.rapt_pill_gravity' ) | float - 1 ) / ( states( 'input_number.rapt_pill_original_gravity' ) | float - 1 ) * 100 ) | round ( 2 ) }}
+            {% else %}
+              {{ 'Unknown' }}
+            {% endif %}
+          {% endif %}
+        icon_template: mdi:percent
+        unit_of_measurement: "%"
+
+  # This section is for the RAPT Temperature Controller. Note that there are 2 REST-based sensors in this section.
+  # Comment this section out if you do not have one, duplicate it as appropriate if you have more than one
+  - platform: rest
+    name: rapt_tempcontroller_settings
+    scan_interval: 600 # 10 minutes
+    resource: https://api.rapt.io/api/TemperatureControllers/GetTemperatureController
+    params:
+      temperatureControllerId: !secret rapt_api_tempcontroller_id
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+    json_attributes:
+      - firmwareVersion
+      - status
+      - error
+      - lastActivityTime
+      - active
+      - customerUse
+      - telemetryFrequency
+      - compressorDelay
+      - modeSwitchDelay
+      - coolingHysteresis
+      - heatingHysteresis
+      - coolingEnabled
+      - heatingEnabled
+      - profileSessions
+      - name
+      - serialNumber
+      - macAddress
+      - id
+      - targetTemperature
+    value_template: "{{( value_json.targetTemperature ) }}"
+    unit_of_measurement: "°C"
+
+  - platform: rest
+    name: rapt_tempcontroller_telemetry
+    scan_interval: 600 # 10 minutes
+    resource: https://api.rapt.io/api/TemperatureControllers/GetTelemetry
+    params:
+      temperatureControllerId: !secret rapt_api_tempcontroller_id
+      startDate: >
+        {{ (utcnow() - timedelta(days = 14)).isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+      endDate: >
+        {{ utcnow().isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+    json_attributes_path: "$.[-1:]"
+    json_attributes:
+      - temperature
+      - targetTemperature
+      - totalRunTime
+      - coolingRunTime
+      - coolingStarts
+      - heatingRunTime
+      - heatingStarts
+      - rssi
+      - profileId
+      - profileSessionStartDate
+      - profileSessionTime
+    value_template: "{{( value_json[-1].temperature | float ) | round(2) }}"
+    unit_of_measurement: "°C"
