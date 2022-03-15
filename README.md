@@ -18,8 +18,8 @@ This Package can be included into your configuration.yaml to connect to the KegL
 3. Rename the file to package_rapt.yaml or to a file name of your liking/standard. The following instructions assume you rename the file to package_rapt.yaml
 4. Using the instructions on this FB Post under "API Secrets", generate your own secret: https://www.facebook.com/groups/raptusersgroup/permalink/1087286405153972
     Note: you can name the secret anything you want, so I'd suggest referencing Home Assistant if you're using it here
-5. Replace "<EnterYourEmailHere>" on line 35 with the email address you used to register to the RAPT Portal (not the name of your secret from 4 above)
-6. Replace "<EnterYourAPISecretHere>" on line 35 with the secret you generated in the RAPT Portal (from 4 above. The secret, not the name)
+5. Replace `"<EnterYourEmailHere>"` on line 35 with the email address you used to register to the RAPT Portal (not the name of your secret from 4 above)
+6. Replace `"<EnterYourAPISecretHere>"` on line 35 with the secret you generated in the RAPT Portal (from 4 above. The secret, not the name)
 7. Comment out the relevant sections for products you don't have
 8. Duplicate the relevant sections for products you have more than one of, incrementing the number as appropriate
 9. Add the configuration file under the homeassistant\packages section, adding the the tree structure as appropriate
