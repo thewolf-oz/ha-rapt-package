@@ -13,9 +13,9 @@ This Package can be included into your configuration.yaml to connect to the KegL
 
 # Install manually:
 1. Create entries in your secrets.yaml file with the IDs of your RAPT. If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
-    `rapt_api_hydrometer_id1: <enter Hydrometer ID here>`
-    `rapt_api_tempcontroller_id1: <enter Temperature Controller ID here>`
-  If using the BrewFather Add-on package, also enter that into the secret (note that this requires the full URL)
+    `rapt_api_hydrometer_id1: <enter Hydrometer ID here>
+    rapt_api_tempcontroller_id1: <enter Temperature Controller ID here>`
+If using the BrewFather Add-on package, also enter that into the secret (note that this requires the full URL)
     `brewfather_stream_id: "http://log.brewfather.net/stream?id=<enter Stream ID here>"`
 2. Copy the package_rapt-sample.yaml file found in https://github.com/thewolf-oz/ha-rapt-package to your config folder/directory in Home Assistant. A different folder/directory can be used however the following instructions assume it is directly in the config folder/directory 
   If using the BrewFather Add-on package, do the equivalent for package_brewfather-sample.yaml
