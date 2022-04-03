@@ -1,0 +1,48 @@
+# Package containing the configuration required for Brewfather
+# This integration currently includes a Pill and a Temperature Controller
+
+rest_command:
+  brewfather_temp_controller_post:
+    url: !secret brewfather_stream_id
+    method: POST
+    headers:
+      accept: "application/json, text/html"
+    payload: '{"name": "{{device_name}}", "temp": {{temp}}, "aux_temp": {{set_temp}}, "temp_unit": "C","comment": "Hello Assistance"}'
+    content_type: "application/json; charset=utf-8"
+  brewfather_pill_post:
+    url: !secret brewfather_stream_id
+    method: POST
+    headers:
+      accept: "application/json, text/html"
+    payload: '{"name": "{{device_name}}", "temp": {{temp}}, "temp_unit": "C", "gravity": {{gravity}}, "gravity_unit": "G","comment": "Hello Assistance"}'
+    content_type: "application/json; charset=utf-8"
+
+automation rapttempcontroller2brewfather: # <-- Required for editor to work, for automations created with the editor the id will be automatically generated.
+  alias: Post RAPT Temp Controller to BrewFather
+  description: "Uploads RAPT Temp Controller data to BrewFather"
+  trigger:
+    - minutes: /15
+      platform: time_pattern
+  condition: []
+  action:
+    - data_template:
+        device_name: "RAPT Temp Controller"
+        set_temp: '{{ (states("sensor.rapt_tempcontroller_settings") | float) }}'
+        temp: '{{ (states("sensor.rapt_tempcontroller_telemetry") | float) }}'
+      service: rest_command.brewfather_temp_controller_post
+  mode: single
+
+automation raptpill2brewfather: # <-- Required for editor to work, for automations created with the editor the id will be automatically generated.
+  alias: Post RAPT Pill to BrewFather
+  description: "Uploads RAPT Pill data to BrewFather"
+  trigger:
+    - minutes: /15
+      platform: time_pattern
+  condition: []
+  action:
+    - data_template:
+        device_name: "RAPT Pill"
+        gravity: '{{ (states("sensor.rapt_pill_gravity") | float) }}'
+        temp: '{{ (states("sensor.rapt_pill_temperature") | float) }}'
+      service: rest_command.brewfather_pill_post
+  mode: single
