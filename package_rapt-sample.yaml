@@ -6,17 +6,33 @@
 
 # The Original Gravity is used to calculate the ABV from the RAPT Pill telemetry
 # You will need to set this once the Pill has reported it's first telemetry
+# The Target Temperature is used as the inputs in setting the target temperatures in the service calls
 # Comment this section out if you do not have one, duplicate it as appropriate if you have more than one
 input_number:
   rapt_pill_original_gravity:
     name: RAPT Pill Original Gravity
-    initial: 1
     min: 0.9
     max: 1.2
     step: 0.001
     mode: box
     unit_of_measurement: "SG"
     icon: mdi:arrow-expand-down
+  rapt_tempcontroller_target:
+    name: RAPT Temperature Controller Target Temperature
+    min: -5
+    max: 50
+    step: 0.1
+    mode: box
+    unit_of_measurement: "°C"
+    icon: mdi:bullseye
+  rapt_brewzilla_target:
+    name: RAPT BrewZilla Target Temperature
+    min: 0
+    max: 120
+    step: 0.1
+    mode: box
+    unit_of_measurement: "°C"
+    icon: mdi:bullseye
 
 # The fermentation start date and time can be used to calculate the duration of your fermentation
 # This can be used to calculate the start time of graphs in any dashboard you may use
@@ -29,7 +45,8 @@ input_datetime:
     icon: mdi:arrow-expand-right
 
 sensor:
-  # This section is for the Bearer sensor. It is required for all RAPT products
+  # This section is for the Bearer sensor. It is required for all RAPT products.
+  # Replace `<EnterYourEmailHere>` and `<EnterYourAPISecretHere>` with your email address and API Secret as per RAPT Portal
   - platform: command_line
     command: >
       curl --location --request POST 'https://id.rapt.io/connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=rapt-user' --data-urlencode 'grant_type=password' --data-urlencode 'username=<EnterYourEmailHere>' --data-urlencode 'password=<EnterYourAPISecretHere>'
@@ -58,7 +75,7 @@ sensor:
     params:
       hydrometerId: !secret rapt_api_hydrometer_id
       startDate: >
-        {{ (utcnow() - timedelta(days = 14)).isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+        {{ (utcnow() - timedelta(days = 1)).isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
       endDate: >
         {{ utcnow().isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
     headers:
@@ -104,7 +121,7 @@ sensor:
         friendly_name: "RAPT Pill Current ABV"
         value_template: >
           {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
-            {{ (( states( 'input_number.rapt_pill_original_gravity' ) | float - states( 'sensor.rapt_pill_gravity' ) | float ) * 131.25 ) | round( 3 ) }}
+            {{ (( states( 'input_number.original_gravity' ) | float - states( 'sensor.rapt_pill_gravity' ) | float ) * 131.25 ) | round( 3 ) }}
           {% else %}
             {{ 'Unknown' }}
           {% endif %}
@@ -125,7 +142,7 @@ sensor:
             {{ 'Unknown' }}
           {% else %}
             {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
-              {{ 100 - (( states( 'sensor.rapt_pill_gravity' ) | float - 1 ) / ( states( 'input_number.rapt_pill_original_gravity' ) | float - 1 ) * 100 ) | round ( 2 ) }}
+              {{ 100 - (( states( 'sensor.rapt_pill_gravity' ) | float - 1 ) / ( states( 'input_number.original_gravity' ) | float - 1 ) * 100 ) | round ( 2 ) }}
             {% else %}
               {{ 'Unknown' }}
             {% endif %}
@@ -193,3 +210,80 @@ sensor:
       - profileSessionTime
     value_template: "{{( value_json[-1].temperature | float ) | round(2) }}"
     unit_of_measurement: "°C"
+
+  # This section is for the RAPT BrewZilla. Note that there are 2 REST-based sensors in this section.
+  # Comment this section out if you do not have one, duplicate it as appropriate if you have more than one
+
+  - platform: rest
+    name: rapt_brewzilla_settings
+    scan_interval: 600 # 10 minutes
+    resource: https://api.rapt.io/api/BrewZillas/GetBrewZilla
+    params:
+      brewZillaId: !secret rapt_api_brewzilla_id
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+    json_attributes:
+      - id
+      - name
+      - firmwareVersion
+      - status
+      - error
+      - lastActivityTime
+      - active
+      - name
+      - serialNumber
+      - macAddress
+      - targetTemperature
+      - totalRunTime
+      - activeProfileId
+      - activeProfile
+      - connectionState
+    value_template: "{{( value_json.targetTemperature ) }}"
+    unit_of_measurement: "°C"
+
+  - platform: rest
+    name: rapt_brewzilla_telemetry
+    scan_interval: 600 # 10 minutes
+    resource: https://api.rapt.io/api/BrewZillas/GetTelemetry
+    params:
+      brewZillaId: !secret rapt_api_brewzilla_id
+      startDate: >
+        {{ (utcnow() - timedelta(days = 14)).isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+      endDate: >
+        {{ utcnow().isoformat() | string | regex_replace(find='\+00:00', replace='', ignorecase=False) + "Z" }}
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+    json_attributes_path: "$.[-1:]"
+    json_attributes:
+      - temperature
+      - targetTemperature
+      - totalRunTime
+      - coolingRunTime
+      - coolingStarts
+      - heatingRunTime
+      - heatingStarts
+      - rssi
+      - profileId
+      - profileSessionStartDate
+      - profileSessionTime
+    value_template: "{{( value_json[-1].temperature | float ) | round(2) }}"
+    unit_of_measurement: "°C"
+
+rest_command:
+  rapt_tempcontroller_set_target:
+    url: >
+      {{ "https://api.rapt.io/api/TemperatureControllers/SetTargetTemperature?temperatureControllerId=" + state_attr("sensor.rapt_tempcontroller_settings", "id" ) | string + "&Target=" + states( "input_number.rapt_tempcontroller_target" ) | string  }}
+    method: POST
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+      accept: "application/json, text/html"
+    content_type: "application/json; charset=utf-8"
+
+  rapt_brewzilla_set_target:
+    url: >
+      {{ "https://api.rapt.io/api/BrewZillas/SetTargetTemperature?brewZillaId=" + state_attr("sensor.rapt_brewzilla_settings", "id" ) | string + "&Target=" + states( "input_number.rapt_brewzilla_target" ) | string  }}
+    method: POST
+    headers:
+      Authorization: Bearer {{ state_attr("sensor.rapt_auth_bearer", 'access_token') }}
+      accept: "application/json, text/html"
+    content_type: "application/json; charset=utf-8"
