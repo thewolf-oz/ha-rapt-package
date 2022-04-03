@@ -12,7 +12,8 @@ This Package can be included into your configuration.yaml to connect to the KegL
 4. As mentioned above, only the RAPT Pill is integrated in a read-only mode so far. RAPT BrewZilla 4, and RAPT Temperature Controller have a "set temperature" HA Service and are are integrated in a read-only mode otherwise. This is a work in progress
 
 # Install manually:
-1. Create entries in your secrets.yaml file with the IDs of your RAPT. If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
+1. Create entries in your secrets.yaml file with the IDs of your RAPT. this is a GUID taken from the RAPT API and not the name you gave it in the RAPT Portal. ![image](https://user-images.githubusercontent.com/86336633/161416443-9bcb13ec-b24a-41bb-926e-d3eea2b47611.png)
+If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
  ```
     rapt_api_hydrometer_id1: <enter Hydrometer ID here>
     rapt_api_tempcontroller_id1: <enter Temperature Controller ID here>
