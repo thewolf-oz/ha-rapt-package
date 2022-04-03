@@ -12,8 +12,7 @@ This Package can be included into your configuration.yaml to connect to the KegL
 4. As mentioned above, only the RAPT Pill is integrated in a read-only mode so far. RAPT BrewZilla 4, and RAPT Temperature Controller have a "set temperature" HA Service and are are integrated in a read-only mode otherwise. This is a work in progress
 
 # Install manually:
-1. Create entries in your secrets.yaml file with the IDs of your RAPT. this is a GUID taken from the RAPT API and not the name you gave it in the RAPT Portal. ![image](https://user-images.githubusercontent.com/86336633/161416443-9bcb13ec-b24a-41bb-926e-d3eea2b47611.png)
-If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
+1. Create entries in your secrets.yaml file with the IDs of your RAPT. this is a GUID taken from the RAPT API and not the name you gave it in the RAPT Portal. If you decide to use different secret names, you'll need to adjust the package. If you have more than one of any item, create the appropriate entry, incrementing the id#
  ```
     rapt_api_hydrometer_id1: <enter Hydrometer ID here>
     rapt_api_tempcontroller_id1: <enter Temperature Controller ID here>
@@ -22,6 +21,7 @@ If using the BrewFather Add-on package, also enter that into the secret (note th
 ```
     brewfather_stream_id: "http://log.brewfather.net/stream?id=<enter Stream ID here>"
 ```
+![image](https://user-images.githubusercontent.com/86336633/161416443-9bcb13ec-b24a-41bb-926e-d3eea2b47611.png)
 2. Copy the package_rapt-sample.yaml file found in https://github.com/thewolf-oz/ha-rapt-package to your config folder/directory in Home Assistant. A different folder/directory can be used however the following instructions assume it is directly in the config folder/directory 
   If using the BrewFather Add-on package, do the equivalent for package_brewfather-sample.yaml
 3. Rename the file to package_rapt.yaml or to a file name of your liking/standard. The following instructions assume you rename the file to package_rapt.yaml
