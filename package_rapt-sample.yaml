@@ -121,7 +121,7 @@ sensor:
         friendly_name: "RAPT Pill Current ABV"
         value_template: >
           {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
-            {{ (( states( 'input_number.original_gravity' ) | float - states( 'sensor.rapt_pill_gravity' ) | float ) * 131.25 ) | round( 3 ) }}
+            {{ (( states( 'input_number.rapt_pill_original_gravity' ) | float - states( 'sensor.rapt_pill_gravity' ) | float ) * 131.25 ) | round( 3 ) }}
           {% else %}
             {{ 'Unknown' }}
           {% endif %}
@@ -142,7 +142,7 @@ sensor:
             {{ 'Unknown' }}
           {% else %}
             {% if state_attr( 'sensor.rapt_pill_telemetry', 'gravity' ) | float > 0 %}
-              {{ 100 - (( states( 'sensor.rapt_pill_gravity' ) | float - 1 ) / ( states( 'input_number.original_gravity' ) | float - 1 ) * 100 ) | round ( 2 ) }}
+              {{ 100 - (( states( 'sensor.rapt_pill_gravity' ) | float - 1 ) / ( states( 'input_number.rapt_pill_original_gravity' ) | float - 1 ) * 100 ) | round ( 2 ) }}
             {% else %}
               {{ 'Unknown' }}
             {% endif %}
