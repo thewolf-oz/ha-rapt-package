@@ -129,11 +129,11 @@ sensor:
         icon_template: mdi:beer
       rapt_pill_fermentation_start:
         friendly_name: "RAPT Pill Fermentation Start"
-        value_template: '{{ states( "input_datetime.fermentation_start" ) }}'
+        value_template: '{{ states( "input_datetime.rapt_pill_fermentation_start" ) }}'
         icon_template: mdi:arrow-expand-right
       rapt_pill_fermentation_duration:
         friendly_name: "RAPT Pill Fermentation Duration"
-        value_template: '{{ (( utcnow().timestamp() | int - as_timestamp(states("input_datetime.fermentation_start")) | int ) / 3600 ) | int }}'
+        value_template: '{{ (( utcnow().timestamp() | int - as_timestamp(states("input_datetime.rapt_pill_fermentation_start")) | int ) / 3600 ) | int }}'
         icon_template: mdi:arrow-expand-horizontal
       rapt_pill_attenuation:
         friendly_name: "RAPT Pill Fermentation Attenuation"
