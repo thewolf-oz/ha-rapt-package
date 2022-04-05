@@ -22,6 +22,7 @@ If using the BrewFather Add-on package, also enter that into the secret (note th
     brewfather_stream_id: "http://log.brewfather.net/stream?id=<enter Stream ID here>"
 ```
 ![image](https://user-images.githubusercontent.com/86336633/161416443-9bcb13ec-b24a-41bb-926e-d3eea2b47611.png)
+
 2. Copy the package_rapt-sample.yaml file found in https://github.com/thewolf-oz/ha-rapt-package to your config folder/directory in Home Assistant. A different folder/directory can be used however the following instructions assume it is directly in the config folder/directory 
   If using the BrewFather Add-on package, do the equivalent for package_brewfather-sample.yaml
 3. Rename the file to package_rapt.yaml or to a file name of your liking/standard. The following instructions assume you rename the file to package_rapt.yaml
