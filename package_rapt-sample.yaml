@@ -17,6 +17,14 @@ input_number:
     mode: box
     unit_of_measurement: "SG"
     icon: mdi:arrow-expand-down
+  rapt_pill_target_attenuation:
+    name: RAPT Pill Target Attenuation
+    min: 50
+    max: 120
+    step: 1
+    mode: box
+    unit_of_measurement: "%"
+    icon: mdi:bullseye
   rapt_tempcontroller_target:
     name: RAPT Temperature Controller Target Temperature
     min: -5
