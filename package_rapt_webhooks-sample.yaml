@@ -1,0 +1,71 @@
+# Package containing the full configuration required for KegLand RAPT Pill Hydrometer/Thermometer using WebHooks including custom sensors
+# You may want to use this in conjunction with the base API package as not all details are in the WebHook
+
+# Comment this section out if you do not have one, duplicate it as appropriate if you have more than one
+template:
+  # Template for Pill webhooks. Duplicate as necessary for each Pill
+  #{
+  #"device_id": "@device_id",
+  #"device_name": "@device_name",
+  #"temperature": "@temperature",
+  #"gravity": "@gravity",
+  #"battery": "@battery",
+  #"rssi": "@rssi"
+  #}
+  - trigger:
+      - platform: webhook
+        webhook_id: rapt-hydrometer-pill
+    sensor:
+      - name: "RAPT Hydrometer Pill"
+        state: "{{ trigger.json.device_name }}"
+        attributes:
+          device_id: "{{ trigger.json.device_id }}"
+          #            friendly_name: "Device ID"
+          #            value_template: "{{ trigger.json.device_id }}"
+          device_name: "{{ trigger.json.device_name }}"
+          #            friendly_name: "Name"
+          #            value_template: "{{ trigger.json.device_name }}"
+          temperature: "{{ trigger.json.temperature }}"
+          #            friendly_name: "Temperature"
+          #            value_template: "{{ trigger.json.temperature }}"
+          #            unit_of_measurement: "°C"
+          gravity: "{{ trigger.json.gravity }}"
+          #            friendly_name: "Gravity"
+          #            value_template: "{{ trigger.json.gravity }}"
+          #            unit_of_measurement: "SG"
+          battery: "{{ trigger.json.battery }}"
+          rssi: "{{ trigger.json.rssi }}"
+  
+  # Template for Temperature Controller/BrewZilla webhooks. Duplicate as necessary for each Temperature Controller/BrewZilla
+  #{
+  #"device_id": "@device_id",
+  #"device_name": "@device_name",
+  #"temperature": "@temperature",
+  #"target_temperature": "@target_temperature",
+  #"rssi": "@rssi"
+  #}
+  - trigger:
+      - platform: webhook
+        webhook_id: rapt-temperaturecontroller-tempcontroller
+    sensor:
+      - name: "RAPT TemperatureController TempController"
+        state: "{{ trigger.json.device_name }}"
+        attributes:
+          device_id: "{{ trigger.json.device_id }}"
+          device_name: "{{ trigger.json.device_name }}"
+          temperature: "{{ trigger.json.temperature }}"
+          target_temperature: "{{ trigger.json.target_temperature }}"
+          rssi: "{{ trigger.json.rssi }}"
+
+  - trigger:
+      - platform: webhook
+        webhook_id: rapt-brewzilla-brewzilla
+    sensor:
+      - name: "RAPT BrewZilla Brewzilla"
+        state: "{{ trigger.json.device_name }}"
+        attributes:
+          device_id: "{{ trigger.json.device_id }}"
+          device_name: "{{ trigger.json.device_name }}"
+          temperature: "{{ trigger.json.temperature }}"
+          target_temperature: "{{ trigger.json.target_temperature }}"
+          rssi: "{{ trigger.json.rssi }}"
